@@ -4,7 +4,26 @@ SMS Character Counter
 
 Character counter for SMS messages.
 
+##Usage
 
+```python
+from sms_counter import SMSCounter
+
+smsmsg = SMSCounter();
+smsmsg.count('ǂ some-string-to-be-counted ');
+```
+
+returns
+```
+<class 'dict'>
+{
+    'length': 28,
+    'per_message': 70,
+    'remaining': 42,
+    'messages': 1,
+    'encoding': 'UTF16'
+}
+```
 
 
 ###Mentions
