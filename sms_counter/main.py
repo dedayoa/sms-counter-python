@@ -6,7 +6,7 @@ Created on Jul 10, 2016
 from math import ceil
 
 
-class SMSCounter():
+class SMSCounter(object):
     GSM_7BIT = 'GSM_7BIT'
     GSM_7BIT_EX = 'GSM_7BIT_EX'
     UTF16 = 'UTF16'
@@ -15,7 +15,8 @@ class SMSCounter():
     GSM_7BIT_LEN_MULTIPART = GSM_7BIT_EX_LEN_MULTIPART = 153
     UTF16_LEN_MULTIPART = 67
 
-    def get_gsm_7bit_map(self):
+    @classmethod
+    def _get_gsm_7bit_map(cls):
         gsm_7bit_map = [
             10, 13, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
             47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
@@ -28,69 +29,63 @@ class SMSCounter():
             920, 923, 926, 928, 931, 934, 936, 937]
         return gsm_7bit_map
 
-    def get_added_gsm_7bit_ex_map(self):
+    @classmethod
+    def _get_added_gsm_7bit_ex_map(cls):
         added_gsm_7bit_ex_map = [91, 92, 93, 94, 123, 124, 125, 126, 8364]
         return added_gsm_7bit_ex_map
 
-    def get_gsm_7bit_ex_map(self):
-        gsm_7bit_ex_map = (
-            self.get_added_gsm_7bit_ex_map() + self.get_gsm_7bit_map())
-        return gsm_7bit_ex_map
-
-    def text_to_unicode_pointcode_list(self, plaintext):
+    @classmethod
+    def _text_to_unicode_pointcode_list(cls, plaintext):
         textlist = []
         for stg in plaintext:
             textlist.append(ord(stg))
         return textlist
 
-    def unicode_pointcode_list_to_text(self, strlist):
-        text = ''
-        for stc in strlist:
-            text.join(chr(stc))
-        return text
+    @classmethod
+    def _detect_encoding(cls, plaintext):
+        rf = cls._text_to_unicode_pointcode_list(plaintext)
 
-    def detect_encoding(self, plaintext):
-        rf = self.text_to_unicode_pointcode_list(plaintext)
-
-        utf16chars = set(rf).difference(set(self.get_gsm_7bit_map()))
+        utf16chars = set(rf).difference(set(cls._get_gsm_7bit_map()))
 
         if len(utf16chars):
-            return self.UTF16
+            return cls.UTF16
 
-        exchars = set(rf).intersection(set(self.get_added_gsm_7bit_ex_map()))
+        exchars = set(rf).intersection(set(cls._get_added_gsm_7bit_ex_map()))
 
         if len(exchars):
-            return self.GSM_7BIT_EX
+            return cls.GSM_7BIT_EX
 
-        return self.GSM_7BIT
+        return cls.GSM_7BIT
 
-    def count(self, plaintext):
-        textlist = self.text_to_unicode_pointcode_list(plaintext)
+    @classmethod
+    def count(cls, plaintext):
+        textlist = cls._text_to_unicode_pointcode_list(plaintext)
 
         exchars = []
-        encoding = self.detect_encoding(plaintext)
+        encoding = cls._detect_encoding(plaintext)
         length = len(textlist)
 
-        if encoding == self.GSM_7BIT_EX:
+        if encoding == cls.GSM_7BIT_EX:
             lengthexchars = len(exchars)
             length += lengthexchars
 
-        if encoding == self.GSM_7BIT:
-            permessage = self.GSM_7BIT_LEN
-            if length > self.GSM_7BIT_LEN:
-                permessage = self.GSM_7BIT_LEN_MULTIPART
-
-        elif encoding == self.GSM_7BIT_EX:
-            permessage = self.GSM_7BIT_EX_LEN
-            if length > self.GSM_7BIT_EX_LEN:
-                permessage = self.GSM_7BIT_EX_LEN_MULTIPART
-
+        if encoding == cls.GSM_7BIT:
+            permessage = cls.GSM_7BIT_LEN
+            if length > cls.GSM_7BIT_LEN:
+                permessage = cls.GSM_7BIT_LEN_MULTIPART
+        elif encoding == cls.GSM_7BIT_EX:
+            permessage = cls.GSM_7BIT_EX_LEN
+            if length > cls.GSM_7BIT_EX_LEN:
+                permessage = cls.GSM_7BIT_EX_LEN_MULTIPART
         else:
-            permessage = self.UTF16_LEN
-            if length > self.UTF16_LEN:
-                permessage = self.UTF16_LEN_MULTIPART
+            permessage = cls.UTF16_LEN
+            if length > cls.UTF16_LEN:
+                permessage = cls.UTF16_LEN_MULTIPART
 
-        messages = ceil(length / permessage)
+        # Convert the dividend to fload so the division will be a float number
+        # and then convert the ceil result to int
+        # since python 2.7 return a float
+        messages = int(ceil(length / float(permessage)))
         remaining = (permessage * messages) - length
 
         returnset = {
@@ -103,27 +98,28 @@ class SMSCounter():
 
         return returnset
 
-    def truncate(self, plaintext, limitsms):
-        count = self.count(plaintext)
+    @classmethod
+    def truncate(cls, plaintext, limitsms):
+        count = cls.count(plaintext)
 
         if count.mesages <= limitsms:
             return plaintext
 
         if count.encoding == 'UTF16':
-            limit = self.UTF16_LEN
+            limit = cls.UTF16_LEN
 
             if limitsms > 2:
-                limit = self.UTF16_LEN_MULTIPART
+                limit = cls.UTF16_LEN_MULTIPART
 
         if count.encoding != 'UTF16':
-            limit = self.GSM_7BIT_LEN
+            limit = cls.GSM_7BIT_LEN
 
             if limitsms > 2:
-                limit = self.GSM_7BIT_LEN_MULTIPART
+                limit = cls.GSM_7BIT_LEN_MULTIPART
 
         while True:
             text = plaintext[0:limit * limitsms]
-            count = self.count(plaintext)
+            count = cls.count(plaintext)
 
             limit = limit - 1
 
