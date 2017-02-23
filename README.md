@@ -1,37 +1,33 @@
 # sms-counter-python
-SMS Character Counter
-=============================
+----
 
-Character counter for SMS messages.
+**sms-counter-python** is a lib that help to count characters of SMS messages.
 
-##Usage
+#### Get it now
+```
+$ pip install git+https://github.com/dedayoa/sms-counter-python.git#egg=sms_counter
+```
 
+#### Support
+* Python 2
+* Python 3
+
+#### Requirements
+sms-counter-python has no external dependencies outside of the Python standard library
+
+#### Usage
 ```python
 from sms_counter import SMSCounter
 
-smsmsg = SMSCounter();
-smsmsg.count('ǂ some-string-to-be-counted ');
+>>> counter = SMSCounter.count('ǂ some-string-to-be-counted ');
+>>> counter
+>>> {'length': 29, 'messages': 1, 'remaining': 41, 'per_message': 70, 'encoding': 'UTF16'}
 ```
 
-returns
-```
-<class 'dict'>
-{
-    'length': 28,
-    'per_message': 70,
-    'remaining': 42,
-    'messages': 1,
-    'encoding': 'UTF16'
-}
-```
-
-
-###Mentions
+#### Mentions
 
 * Original idea : [danxexe/sms-counter](https://github.com/danxexe/sms-counter)
 * Next Original : [wobblecode/sms-counter-php](https://github.com/wobblecode/sms-counter-php/)
 
-## License
-
-sms-counter-python is released under the [MIT License](LICENSE.txt).
-
+#### License
+MIT licensed. See the bundled [LICENSE](LICENSE) file for more details.
