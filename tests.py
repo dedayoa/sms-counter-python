@@ -1,4 +1,4 @@
-from unittest import TestCase, main
+from unittest import TestCase
 
 from sms_counter import SMSCounter
 
@@ -54,4 +54,5 @@ class SMSCounterTestCase(TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    import unittest
+    unittest.main()
