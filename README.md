@@ -1,5 +1,6 @@
 # sms-counter-python
 ----
+[![Build Status](https://travis-ci.com/uralov/sms-counter-python.svg?branch=master)](https://travis-ci.com/uralov/sms-counter-python)
 
 **sms-counter-python** is a lib that help to count characters of SMS messages.
 
