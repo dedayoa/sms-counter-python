@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
-'''
+"""
 Created on Jul 10, 2016
 @author: Dayo
-'''
+"""
 from math import ceil
 
 
@@ -45,17 +45,15 @@ class SMSCounter(object):
     def _detect_encoding(cls, plaintext):
         rf = cls._text_to_unicode_pointcode_list(plaintext)
 
-        utf16chars = set(rf).difference(set(cls._get_gsm_7bit_map()))
+        non_gsm_7bit_chars = set(rf) - set(cls._get_gsm_7bit_map())
+        if not non_gsm_7bit_chars:
+            return cls.GSM_7BIT
 
-        if len(utf16chars):
-            return cls.UTF16
-
-        exchars = set(rf).intersection(set(cls._get_added_gsm_7bit_ex_map()))
-
-        if len(exchars):
+        non_gsm_7bit_ex_chars = non_gsm_7bit_chars - set(cls._get_added_gsm_7bit_ex_map())
+        if not non_gsm_7bit_ex_chars:
             return cls.GSM_7BIT_EX
 
-        return cls.GSM_7BIT
+        return cls.UTF16
 
     @classmethod
     def count(cls, plaintext):
