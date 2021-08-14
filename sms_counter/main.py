@@ -100,7 +100,7 @@ class SMSCounter(object):
     def truncate(cls, plaintext, limitsms):
         count = cls.count(plaintext)
 
-        if count.mesages <= limitsms:
+        if count.messages <= limitsms:
             return plaintext
 
         if count.encoding == 'UTF16':
